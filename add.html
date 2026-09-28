@@ -11,12 +11,8 @@
         header { border-bottom: 1px solid #e5e5e5; background: #fff; position: sticky; top: 0; z-index: 100; }
         .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
         .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
-        
-        .nav-actions { display: flex; align-items: center; gap: 12px; }
-        .nav-btn { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; transition: all 0.2s; background: #fff; }
-        .nav-btn:hover { background: #f0f0f0; border-color: #999; }
-        .nav-btn.danger { color: #d93838; border-color: #d93838; }
-        .nav-btn.danger:hover { background: #d93838; color: #fff; }
+        .back-link { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; transition: background 0.2s; background: #fff; }
+        .back-link:hover { background: #f0f0f0; }
 
         /* Auth Screen */
         .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
@@ -42,9 +38,15 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 
-        .submit-btn { background: #000; color: #fff; border: none; padding: 14px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 10px; }
+        .btn-container { display: flex; gap: 12px; margin-top: 10px; }
+        @media(max-width: 600px) { .btn-container { flex-direction: column; } }
+
+        .submit-btn { background: #000; color: #fff; border: none; padding: 14px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; flex: 1; transition: background 0.2s; }
         .submit-btn:hover { background: #333; }
         .submit-btn:disabled { background: #757575; cursor: not-allowed; }
+
+        .secondary-action-btn { background: #fff; color: #d93838; border: 1px solid #d93838; padding: 14px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; flex: 1; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+        .secondary-action-btn:hover { background: #d93838; color: #fff; }
 
         .status-msg { margin-top: 20px; padding: 12px; border-radius: 4px; font-size: 0.9rem; text-align: center; display: none; }
         .status-msg.success { background: #eef6ee; color: #2e7d32; border: 1px solid #c8e6c9; display: block; }
@@ -56,14 +58,11 @@
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">TCOLLECTIONS // ADMIN</a>
-            <div class="nav-actions">
-                <a href="delete.html" class="nav-btn danger">Manage / Delete Products</a>
-                <a href="index.html" class="nav-btn">Back to Store</a>
-            </div>
+            <a href="index.html" class="back-link">Back to Store</a>
         </div>
     </header>
 
-    <!-- Password Prompt Screen -->
+    <!-- Password Prompt Screen for Uploading Page -->
     <div id="authWrapper" class="auth-wrapper">
         <div class="auth-box">
             <h2>Admin Security</h2>
@@ -118,7 +117,10 @@
                     <textarea id="prodDesc" class="form-control" rows="4" placeholder="Describe fit, materials, and styling details..." required></textarea>
                 </div>
 
-                <button type="submit" id="submitBtn" class="submit-btn">Upload Product to Database</button>
+                <div class="btn-container">
+                    <button type="submit" id="submitBtn" class="submit-btn">Upload Product</button>
+                    <a href="delete.html" class="secondary-action-btn">Go to Delete Page</a>
+                </div>
                 <div id="statusMsg" class="status-msg"></div>
             </form>
         </div>
@@ -182,7 +184,7 @@
                 statusMsg.className = 'status-msg error';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Upload Product to Database';
+                submitBtn.textContent = 'Upload Product';
             }
         });
     </script>
