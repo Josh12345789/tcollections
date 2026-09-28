@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts - TCOLLECTIONS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #fff; color: #111; min-height: 100vh; display: flex; flex-direction: column; opacity: 0; animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .announcement { background: #f7f7f7; font-size: 0.75rem; text-align: center; padding: 8px; font-weight: 500; }
+        header { border-bottom: 1px solid #e5e5e5; position: sticky; top: 0; background: rgba(255,255,255,0.95); z-index: 100; }
+        .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
+        .nav-links { display: flex; gap: 25px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #111; font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid transparent; padding-bottom: 4px; transition: border-color 0.2s; }
+        .nav-links a:hover { border-color: #000; }
+        .search-input { padding: 8px 14px; border-radius: 20px; border: 1px solid #e5e5e5; background: #f5f5f5; font-size: 0.85rem; outline: none; width: 220px; transition: all 0.2s; }
+        .search-input:focus { border-color: #000; background: #fff; width: 250px; }
+        main { max-width: 1440px; margin: 0 auto; padding: 40px; flex: 1; width: 100%; }
+        .page-header { margin-bottom: 30px; }
+        .page-header h1 { font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .product-card { background: #fff; display: flex; flex-direction: column; transition: transform 0.2s ease; }
+        .product-card:hover { transform: translateY(-3px); }
+        .image-container { position: relative; width: 100%; padding-top: 100%; background: #f4f4f4; border-radius: 4px; overflow: hidden; }
+        .image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease; }
+        .image-container img.hover-img { opacity: 0; }
+        .product-card:hover .image-container img.front-img { opacity: 0; }
+        .product-card:hover .image-container img.hover-img { opacity: 1; }
+        .product-info { padding: 15px 0; display: flex; flex-direction: column; gap: 5px; }
+        .cat-tag { font-size: 0.75rem; color: #757575; text-transform: uppercase; letter-spacing: 1px; }
+        .prod-name { font-size: 1rem; font-weight: 600; color: #111; }
+        .prod-price { font-size: 0.95rem; font-weight: 700; color: #000; }
+        .whatsapp-btn { margin-top: 8px; background: #000; color: #fff; border: none; padding: 10px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; text-align: center; text-decoration: none; transition: background 0.2s; }
+        .whatsapp-btn:hover { background: #333; }
+        footer { border-top: 1px solid #e5e5e5; padding: 40px; background: #fafafa; margin-top: auto; }
+        .footer-content { max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+        .login-link { font-size: 0.85rem; color: #111; text-decoration: underline; font-weight: 600; }
+        .copy { font-size: 0.75rem; color: #757575; }
+        .empty { grid-column: 1 / -1; text-align: center; padding: 50px; color: #757575; }
+    </style>
+</head>
+<body>
+    <div class="announcement">FREE SHIPPING ACROSS ZAMBIA ON ORDERS OVER ZMW 1,500</div>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">TCOLLECTIONS</a>
+            <ul class="nav-links">
+                <li><a href="shoes.html">Shoes</a></li>
+                <li><a href="hoodies.html">Hoodies</a></li>
+                <li><a href="tshirts.html">T-Shirts</a></li>
+                <li><a href="shorts.html" style="border-color: #000;">Shorts</a></li>
+                <li><a href="bottoms.html">Bottoms</a></li>
+                <li><a href="tracksuits.html">Tracksuits</a></li>
+            </ul>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search items...">
+        </div>
+    </header>
+    <main>
+        <div class="page-header">
+            <h1>Shorts Collection</h1>
+        </div>
+        <div class="product-grid" id="productGrid">
+            <div class="empty">Loading shorts...</div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <a href="login.html" class="login-link">Login</a>
+            <span class="copy">© 2026 TCOLLECTIONS Inc. All Rights Reserved.</span>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.firebasestorage.app", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
+        
+        let allProducts = [];
+        const grid = document.getElementById('productGrid');
+        const search = document.getElementById('searchInput');
+
+        async function loadProducts() {
+            try {
+                const snap = await getDocs(collection(db, "tcollections_products"));
+                allProducts = [];
+                snap.forEach(d => allProducts.push(d.data()));
+                allProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                const listOnly = allProducts.filter(p => p.category.toLowerCase() === 'shorts');
+                displayProducts(listOnly);
+            } catch(e) { 
+                grid.innerHTML = `<div class="empty">Database connection error.</div>`; 
+            }
+        }
+
+        function displayProducts(list) {
+            if(!list.length) { 
+                grid.innerHTML = `<div class="empty">No shorts found.</div>`; 
+                return; 
+            }
+            grid.innerHTML = "";
+            list.forEach(p => {
+                const wa = `https://wa.me/260979342993?text=` + encodeURIComponent(`Hello TCOLLECTIONS, I would like to buy ${p.name} for ZMW ${Number(p.price).toLocaleString()}. Please let me know availability!`);
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="image-container">
+                            <img src="${p.frontPic}" class="front-img">
+                            <img src="${p.hoverPic}" class="hover-img">
+                        </div>
+                        <div class="product-info">
+                            <span class="cat-tag">${p.category}</span>
+                            <span class="prod-name">${p.name}</span>
+                            <span class="prod-price">ZMW ${Number(p.price).toLocaleString()}</span>
+                            <a href="${wa}" target="_blank" class="whatsapp-btn">Buy via WhatsApp</a>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        search.addEventListener('input', () => {
+            const q = search.value.toLowerCase().trim();
+            if(q) {
+                const res = allProducts.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+                displayProducts(res);
+            } else {
+                const listOnly = allProducts.filter(p => p.category.toLowerCase() === 'shorts');
+                displayProducts(listOnly);
+            }
+        });
+
+        loadProducts();
+    </script>
+</body>
+</html>

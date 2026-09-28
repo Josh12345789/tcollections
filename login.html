@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - TCOLLECTIONS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #fff; color: #111; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 40px 20px; opacity: 0; animation: fadeIn 0.6s ease forwards; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-box { width: 100%; max-width: 400px; margin: auto; text-align: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; display: inline-block; margin-bottom: 25px; transition: transform 0.2s ease; }
+        .logo:hover { transform: scale(1.05); }
+        
+        h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 25px; color: #333; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .group { margin-bottom: 15px; text-align: left; }
+        input { width: 100%; padding: 14px 16px; border: 1px solid #e5e5e5; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa; }
+        input:focus { border-color: #000; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,0.05); }
+        
+        .btn { width: 100%; background: #000; color: #fff; padding: 14px; border: none; border-radius: 4px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: background 0.2s, transform 0.1s; }
+        .btn:hover { background: #333; }
+        .btn:active { transform: scale(0.98); }
+
+        .error-msg { color: #d93838; font-size: 0.8rem; margin-top: 12px; font-weight: 600; min-height: 18px; opacity: 0; transition: opacity 0.3s ease; }
+        .error-msg.visible { opacity: 1; }
+
+        .back { display: block; margin-top: 25px; font-size: 0.85rem; color: #757575; text-decoration: none; transition: color 0.2s; }
+        .back:hover { color: #000; }
+        
+        .footer-copy { font-size: 0.75rem; color: #757575; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <a href="index.html" class="logo">TCOLLECTIONS</a>
+        <h1>Admin Access Portal</h1>
+        <form id="loginForm">
+            <div class="group"><input type="text" id="username" placeholder="Username" required autocomplete="off"></div>
+            <div class="group"><input type="password" id="password" placeholder="Password" required></div>
+            <button type="submit" class="btn">Sign In</button>
+            <div id="errorMsg" class="error-msg">Invalid credentials. Use 'tcollections' for both.</div>
+        </form>
+        <a href="index.html" class="back">← Return to Storefront</a>
+    </div>
+    <div class="footer-copy">© 2026 TCOLLECTIONS Inc.</div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const userInp = document.getElementById('username');
+        const passInp = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = userInp.value.trim().toLowerCase();
+            const pass = passInp.value.trim().toLowerCase();
+
+            if (user === 'tcollections' && pass === 'tcollections') {
+                errorMsg.classList.remove('visible');
+                // Smooth transition effect before redirecting
+                document.body.style.transition = 'opacity 0.4s ease';
+                document.body.style.opacity = '0';
+                setTimeout(() => {
+                    window.location.href = 'add.html';
+                }, 400);
+            } else {
+                errorMsg.classList.add('visible');
+                // Shake animation for error feedback
+                form.style.animation = 'none';
+                form.offsetHeight; /* trigger reflow */
+                form.style.animation = 'shake 0.3s ease';
+            }
+        });
+    </script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+    </style>
+</body>
+</html>

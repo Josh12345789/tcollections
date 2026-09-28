@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TCOLLECTIONS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { width: 100%; max-width: 600px; background: #fff; padding: 40px; border-radius: 8px; border: 1px solid #e5e5e5; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
+        .logout { font-size: 0.85rem; color: #757575; text-decoration: none; font-weight: 600; }
+        h1 { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; }
+        .group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #555; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 12px 14px; border: 1px solid #e5e5e5; border-radius: 4px; font-size: 0.95rem; outline: none; background: #fafafa; }
+        .file-upload-box { border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 4px; background: #fcfcfc; cursor: pointer; }
+        .file-upload-box input { display: none; }
+        .file-label { font-size: 0.85rem; color: #666; font-weight: 500; cursor: pointer; display: block; }
+        .preview-name { font-size: 0.75rem; color: #000; margin-top: 5px; font-weight: 700; }
+        .btn { width: 100%; background: #000; color: #fff; padding: 14px; border: none; border-radius: 4px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        .status { margin-top: 15px; font-size: 0.85rem; font-weight: 600; text-align: center; min-height: 20px; }
+        .status.success { color: #2e7d32; }
+        .status.error { color: #d93838; }
+        .back-store { display: block; text-align: center; margin-top: 25px; font-size: 0.85rem; color: #757575; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="index.html" class="logo">TCOLLECTIONS</a>
+            <a href="login.html" class="logout">Sign Out</a>
+        </div>
+        <h1>Add New Product</h1>
+        <form id="addProductForm">
+            <div class="group">
+                <label>Product Name</label>
+                <input type="text" id="prodName" required>
+            </div>
+            <div class="group">
+                <label>Category</label>
+                <select id="prodCategory" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="Shoes">Shoes</option>
+                    <option value="Hoodies">Hoodies</option>
+                    <option value="Tshirts">T-Shirts</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Bottoms">Bottoms</option>
+                    <option value="Tracksuits">Tracksuits</option>
+                </select>
+            </div>
+            <div class="group">
+                <label>Price (ZMW)</label>
+                <input type="number" id="prodPrice" required>
+            </div>
+            <div class="group">
+                <label>Front View Image</label>
+                <div class="file-upload-box" onclick="document.getElementById('frontFile').click()">
+                    <span class="file-label" id="frontLabel">Click to upload front image</span>
+                    <input type="file" id="frontFile" accept="image/*" required>
+                    <div class="preview-name" id="frontName"></div>
+                </div>
+            </div>
+            <div class="group">
+                <label>Hover View Image</label>
+                <div class="file-upload-box" onclick="document.getElementById('hoverFile').click()">
+                    <span class="file-label" id="hoverLabel">Click to upload hover image</span>
+                    <input type="file" id="hoverFile" accept="image/*" required>
+                    <div class="preview-name" id="hoverName"></div>
+                </div>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">Upload Product</button>
+            <div id="statusMsg" class="status"></div>
+        </form>
+        <a href="index.html" class="back-store">← Back to Storefront</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.firebasestorage.app", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
+
+        const form = document.getElementById('addProductForm');
+        const statusMsg = document.getElementById('statusMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let frontBase64 = "";
+        let hoverBase64 = "";
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        document.getElementById('frontFile').addEventListener('change', async (e) => {
+            if(e.target.files[0]) {
+                document.getElementById('frontName').textContent = e.target.files[0].name;
+                frontBase64 = await compressImage(e.target.files[0]);
+            }
+        });
+
+        document.getElementById('hoverFile').addEventListener('change', async (e) => {
+            if(e.target.files[0]) {
+                document.getElementById('hoverName').textContent = e.target.files[0].name;
+                hoverBase64 = await compressImage(e.target.files[0]);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!frontBase64 || !hoverBase64) {
+                statusMsg.textContent = "Please select both images.";
+                statusMsg.className = "status error";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Uploading...";
+            statusMsg.textContent = "Saving product to database...";
+            statusMsg.className = "status";
+
+            try {
+                await addDoc(collection(db, "tcollections_products"), {
+                    name: document.getElementById('prodName').value.trim(),
+                    category: document.getElementById('prodCategory').value,
+                    price: Number(document.getElementById('prodPrice').value),
+                    frontPic: frontBase64,
+                    hoverPic: hoverBase64,
+                    createdAt: new Date().toISOString()
+                });
+
+                statusMsg.textContent = "Product successfully uploaded!";
+                statusMsg.className = "status success";
+                form.reset();
+                document.getElementById('frontName').textContent = "";
+                document.getElementById('hoverName').textContent = "";
+                frontBase64 = "";
+                hoverBase64 = "";
+            } catch(err) {
+                console.error(err);
+                statusMsg.textContent = "Upload failed: " + err.message;
+                statusMsg.className = "status error";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Upload Product";
+            }
+        });
+    </script>
+</body>
+</html>
