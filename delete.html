@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Products - TCOLLECTIONS Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; }
+        header { border-bottom: 1px solid #e5e5e5; background: #fff; position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
+        .back-link { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 6px 14px; border-radius: 4px; transition: background 0.2s; }
+        .back-link:hover { background: #f0f0f0; }
+
+        /* Auth Screen */
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        .auth-box { background: #fff; padding: 40px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .auth-box h2 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .auth-box p { font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .auth-input:focus { border-color: #000; }
+        .auth-btn { background: #000; color: #fff; border: none; padding: 12px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .auth-btn:hover { background: #333; }
+        .auth-error { font-size: 0.8rem; color: #d93838; display: none; }
+
+        /* Admin Dashboard */
+        .admin-main { max-width: 1440px; margin: 0 auto; padding: 40px; width: 100%; display: none; flex: 1; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .admin-header h1 { font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .search-box { padding: 10px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 0.9rem; outline: none; width: 300px; }
+        .search-box:focus { border-color: #000; }
+
+        .category-section { margin-bottom: 40px; }
+        .category-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #000; display: inline-block; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .product-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s; }
+        .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .card-img-container { position: relative; width: 100%; padding-top: 100%; background: #f4f4f4; }
+        .card-img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .card-info { padding: 15px; display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: space-between; }
+        .prod-name { font-size: 0.95rem; font-weight: 600; color: #111; }
+        .prod-price { font-size: 0.9rem; font-weight: 700; color: #000; }
+        .delete-btn { background: #fff; color: #d93838; border: 1px solid #d93838; padding: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .delete-btn:hover { background: #d93838; color: #fff; }
+        
+        .empty-notice { text-align: center; padding: 40px; color: #757575; grid-column: 1 / -1; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">TCOLLECTIONS // ADMIN</a>
+            <a href="index.html" class="back-link">Back to Store</a>
+        </div>
+    </header>
+
+    <!-- Password Prompt Screen -->
+    <div id="authWrapper" class="auth-wrapper">
+        <div class="auth-box">
+            <h2>Admin Security</h2>
+            <p>Enter the admin access password to manage and delete products from the database.</p>
+            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password...">
+            <span id="authError" class="auth-error">Incorrect password. Please try again.</span>
+            <button id="loginBtn" class="auth-btn">Access Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Screen -->
+    <main id="adminMain" class="admin-main">
+        <div class="admin-header">
+            <h1>Manage Catalog</h1>
+            <input type="text" id="adminSearch" class="search-box" placeholder="Search products to delete...">
+        </div>
+        <div id="catalogContainer">
+            <!-- Dynamically injected category blocks -->
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.firebasestorage.app", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
+        
+        let allProducts = [];
+        const authWrapper = document.getElementById('authWrapper');
+        const adminMain = document.getElementById('adminMain');
+        const passwordInput = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const authError = document.getElementById('authError');
+        const catalogContainer = document.getElementById('catalogContainer');
+        const adminSearch = document.getElementById('adminSearch');
+
+        // Handle login verification
+        function handleLogin() {
+            if(passwordInput.value === 'tcollections') {
+                authWrapper.style.display = 'none';
+                adminMain.style.display = 'block';
+                fetchProducts();
+            } else {
+                authError.style.display = 'block';
+                passwordInput.style.borderColor = '#d93838';
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
+
+        // Fetch all products from Firestore collection 'tcollections_products'
+        async function fetchProducts() {
+            catalogContainer.innerHTML = `<div style="text-align:center; padding: 50px; color:#757575;">Loading catalog database...</div>`;
+            try {
+                const snap = await getDocs(collection(db, "tcollections_products"));
+                allProducts = [];
+                snap.forEach(d => {
+                    allProducts.push({
+                        docId: d.id, // Firestore Document ID required for deletion
+                        ...d.data()
+                    });
+                });
+                allProducts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                renderCatalog(allProducts);
+            } catch(err) {
+                catalogContainer.innerHTML = `<div style="text-align:center; padding: 50px; color:#d93838;">Failed to load items from database.</div>`;
+            }
+        }
+
+        // Render products grouped by category
+        function renderCatalog(productsList) {
+            if(!productsList.length) {
+                catalogContainer.innerHTML = `<div style="text-align:center; padding: 50px; color:#757575;">No products found in the database.</div>`;
+                return;
+            }
+
+            // Group products by category
+            const categories = {};
+            productsList.forEach(p => {
+                const cat = (p.category || 'Uncategorized').toUpperCase();
+                if(!categories[cat]) categories[cat] = [];
+                categories[cat].push(p);
+            });
+
+            catalogContainer.innerHTML = "";
+
+            for(const [catName, items] of Object.entries(categories)) {
+                let sectionHTML = `
+                    <div class="category-section">
+                        <div class="category-title">${catName} (${items.length})</div>
+                        <div class="product-grid">
+                `;
+
+                items.forEach(item => {
+                    sectionHTML += `
+                        <div class="product-card">
+                            <div class="card-img-container">
+                                <img src="${item.frontPic || 'https://via.placeholder.com/300'}" alt="${item.name}">
+                            </div>
+                            <div class="card-info">
+                                <div>
+                                    <div class="prod-name">${item.name}</div>
+                                    <div class="prod-price">ZMW ${Number(item.price || 0).toLocaleString()}</div>
+                                </div>
+                                <button class="delete-btn" onclick="window.deleteProduct('${item.docId}', '${item.name.replace(/'/g, "\\'")}')">Delete Item</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                sectionHTML += `</div></div>`;
+                catalogContainer.innerHTML += sectionHTML;
+            }
+        }
+
+        // Global delete handler function linked to buttons
+        window.deleteProduct = async function(docId, prodName) {
+            if(confirm(`Are you sure you want to permanently delete "${prodName}" from TCOLLECTIONS? This action cannot be undone.`)) {
+                try {
+                    // Delete document from Firestore collection 'tcollections_products'
+                    await deleteDoc(doc(db, "tcollections_products", docId));
+                    // Update local array and re-render
+                    allProducts = allProducts.filter(p => p.docId !== docId);
+                    
+                    // Maintain current search filter if active
+                    const query = adminSearch.value.toLowerCase().trim();
+                    if(query) {
+                        const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+                        renderCatalog(filtered);
+                    } else {
+                        renderCatalog(allProducts);
+                    }
+                } catch(error) {
+                    alert('Error deleting product. Please check your network connection.');
+                }
+            }
+        };
+
+        // Search filtering logic
+        adminSearch.addEventListener('input', () => {
+            const query = adminSearch.value.toLowerCase().trim();
+            if(query) {
+                const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+                renderCatalog(filtered);
+            } else {
+                renderCatalog(allProducts);
+            }
+        });
+    </script>
+</body>
+</html>
