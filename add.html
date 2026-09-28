@@ -3,166 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - TCOLLECTIONS</title>
+    <title>Add Product - TCOLLECTIONS Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-        .container { width: 100%; max-width: 600px; background: #fff; padding: 40px; border-radius: 8px; border: 1px solid #e5e5e5; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; }
+        header { border-bottom: 1px solid #e5e5e5; background: #fff; position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
         .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
-        .logout { font-size: 0.85rem; color: #757575; text-decoration: none; font-weight: 600; }
-        h1 { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; }
-        .group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #555; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 12px 14px; border: 1px solid #e5e5e5; border-radius: 4px; font-size: 0.95rem; outline: none; background: #fafafa; }
-        .file-upload-box { border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 4px; background: #fcfcfc; cursor: pointer; }
-        .file-upload-box input { display: none; }
-        .file-label { font-size: 0.85rem; color: #666; font-weight: 500; cursor: pointer; display: block; }
-        .preview-name { font-size: 0.75rem; color: #000; margin-top: 5px; font-weight: 700; }
-        .btn { width: 100%; background: #000; color: #fff; padding: 14px; border: none; border-radius: 4px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
-        .status { margin-top: 15px; font-size: 0.85rem; font-weight: 600; text-align: center; min-height: 20px; }
-        .status.success { color: #2e7d32; }
-        .status.error { color: #d93838; }
-        .back-store { display: block; text-align: center; margin-top: 25px; font-size: 0.85rem; color: #757575; text-decoration: none; }
+        
+        .nav-actions { display: flex; align-items: center; gap: 12px; }
+        .nav-btn { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; transition: all 0.2s; background: #fff; }
+        .nav-btn:hover { background: #f0f0f0; border-color: #999; }
+        .nav-btn.danger { color: #d93838; border-color: #d93838; }
+        .nav-btn.danger:hover { background: #d93838; color: #fff; }
+
+        /* Auth Screen */
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        .auth-box { background: #fff; padding: 40px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .auth-box h2 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .auth-box p { font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .auth-input:focus { border-color: #000; }
+        .auth-btn { background: #000; color: #fff; border: none; padding: 12px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .auth-btn:hover { background: #333; }
+        .auth-error { font-size: 0.8rem; color: #d93838; display: none; }
+
+        /* Admin Form Main */
+        .admin-main { max-width: 800px; margin: 40px auto; padding: 0 20px; width: 100%; display: none; flex: 1; }
+        .form-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .form-title { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 30px; }
+        
+        .form-group { margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #fff; width: 100%; }
+        .form-control:focus { border-color: #000; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+        .submit-btn { background: #000; color: #fff; border: none; padding: 14px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 10px; }
+        .submit-btn:hover { background: #333; }
+        .submit-btn:disabled { background: #757575; cursor: not-allowed; }
+
+        .status-msg { margin-top: 20px; padding: 12px; border-radius: 4px; font-size: 0.9rem; text-align: center; display: none; }
+        .status-msg.success { background: #eef6ee; color: #2e7d32; border: 1px solid #c8e6c9; display: block; }
+        .status-msg.error { background: #fdeeea; color: #c62828; border: 1px solid #ffcdd2; display: block; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header-row">
-            <a href="index.html" class="logo">TCOLLECTIONS</a>
-            <a href="login.html" class="logout">Sign Out</a>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">TCOLLECTIONS // ADMIN</a>
+            <div class="nav-actions">
+                <a href="delete.html" class="nav-btn danger">Manage / Delete Products</a>
+                <a href="index.html" class="nav-btn">Back to Store</a>
+            </div>
         </div>
-        <h1>Add New Product</h1>
-        <form id="addProductForm">
-            <div class="group">
-                <label>Product Name</label>
-                <input type="text" id="prodName" required>
-            </div>
-            <div class="group">
-                <label>Category</label>
-                <select id="prodCategory" required>
-                    <option value="" disabled selected>Select a category</option>
-                    <option value="Shoes">Shoes</option>
-                    <option value="Hoodies">Hoodies</option>
-                    <option value="Tshirts">T-Shirts</option>
-                    <option value="Shorts">Shorts</option>
-                    <option value="Bottoms">Bottoms</option>
-                    <option value="Tracksuits">Tracksuits</option>
-                </select>
-            </div>
-            <div class="group">
-                <label>Price (ZMW)</label>
-                <input type="number" id="prodPrice" required>
-            </div>
-            <div class="group">
-                <label>Front View Image</label>
-                <div class="file-upload-box" onclick="document.getElementById('frontFile').click()">
-                    <span class="file-label" id="frontLabel">Click to upload front image</span>
-                    <input type="file" id="frontFile" accept="image/*" required>
-                    <div class="preview-name" id="frontName"></div>
-                </div>
-            </div>
-            <div class="group">
-                <label>Hover View Image</label>
-                <div class="file-upload-box" onclick="document.getElementById('hoverFile').click()">
-                    <span class="file-label" id="hoverLabel">Click to upload hover image</span>
-                    <input type="file" id="hoverFile" accept="image/*" required>
-                    <div class="preview-name" id="hoverName"></div>
-                </div>
-            </div>
-            <button type="submit" class="btn" id="submitBtn">Upload Product</button>
-            <div id="statusMsg" class="status"></div>
-        </form>
-        <a href="index.html" class="back-store">← Back to Storefront</a>
+    </header>
+
+    <!-- Password Prompt Screen -->
+    <div id="authWrapper" class="auth-wrapper">
+        <div class="auth-box">
+            <h2>Admin Security</h2>
+            <p>Enter the admin access password to unlock the product upload panel.</p>
+            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password...">
+            <span id="authError" class="auth-error">Incorrect password. Please try again.</span>
+            <button id="loginBtn" class="auth-btn">Access Dashboard</button>
+        </div>
     </div>
+
+    <!-- Product Upload Panel -->
+    <main id="adminMain" class="admin-main">
+        <div class="form-card">
+            <h1 class="form-title">Add New Product</h1>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="prodName">Product Name</label>
+                    <input type="text" id="prodName" class="form-control" placeholder="e.g. Vintage Heavyweight Hoodie" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prodCategory">Category</label>
+                        <select id="prodCategory" class="form-control" required>
+                            <option value="">Select Category...</option>
+                            <option value="Hoodies">Hoodies</option>
+                            <option value="Tee">Tees</option>
+                            <option value="Pants">Pants</option>
+                            <option value="Outerwear">Outerwear</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Footwear">Footwear</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prodPrice">Price (ZMW)</label>
+                        <input type="number" id="prodPrice" class="form-control" placeholder="e.g. 450" min="0" step="0.01" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="frontPic">Front Image URL</label>
+                    <input type="url" id="frontPic" class="form-control" placeholder="https://example.com/image-front.jpg" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="backPic">Back Image URL (Optional)</label>
+                    <input type="url" id="backPic" class="form-control" placeholder="https://example.com/image-back.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="prodDesc">Product Description</label>
+                    <textarea id="prodDesc" class="form-control" rows="4" placeholder="Describe fit, materials, and styling details..." required></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">Upload Product to Database</button>
+                <div id="statusMsg" class="status-msg"></div>
+            </form>
+        </div>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.firebasestorage.app", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
-
-        const form = document.getElementById('addProductForm');
-        const statusMsg = document.getElementById('statusMsg');
+        
+        const authWrapper = document.getElementById('authWrapper');
+        const adminMain = document.getElementById('adminMain');
+        const passwordInput = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const authError = document.getElementById('authError');
+        
+        const productForm = document.getElementById('productForm');
         const submitBtn = document.getElementById('submitBtn');
+        const statusMsg = document.getElementById('statusMsg');
 
-        let frontBase64 = "";
-        let hoverBase64 = "";
-
-        function compressImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 600;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.6));
-                    };
-                };
-                reader.onerror = error => reject(error);
-            });
+        // Handle login verification
+        function handleLogin() {
+            if(passwordInput.value === 'TCOLLECTIONS2026') {
+                authWrapper.style.display = 'none';
+                adminMain.style.display = 'block';
+            } else {
+                authError.style.display = 'block';
+                passwordInput.style.borderColor = '#d93838';
+            }
         }
 
-        document.getElementById('frontFile').addEventListener('change', async (e) => {
-            if(e.target.files[0]) {
-                document.getElementById('frontName').textContent = e.target.files[0].name;
-                frontBase64 = await compressImage(e.target.files[0]);
-            }
-        });
+        loginBtn.addEventListener('click', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
 
-        document.getElementById('hoverFile').addEventListener('change', async (e) => {
-            if(e.target.files[0]) {
-                document.getElementById('hoverName').textContent = e.target.files[0].name;
-                hoverBase64 = await compressImage(e.target.files[0]);
-            }
-        });
-
-        form.addEventListener('submit', async (e) => {
+        // Handle Product Submission to Firebase
+        productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!frontBase64 || !hoverBase64) {
-                statusMsg.textContent = "Please select both images.";
-                statusMsg.className = "status error";
-                return;
-            }
-
             submitBtn.disabled = true;
-            submitBtn.textContent = "Uploading...";
-            statusMsg.textContent = "Saving product to database...";
-            statusMsg.className = "status";
+            submitBtn.textContent = 'Saving to database...';
+            statusMsg.className = 'status-msg';
+            statusMsg.style.display = 'none';
+
+            const newProduct = {
+                name: document.getElementById('prodName').value.trim(),
+                category: document.getElementById('prodCategory').value,
+                price: parseFloat(document.getElementById('prodPrice').value),
+                frontPic: document.getElementById('frontPic').value.trim(),
+                backPic: document.getElementById('backPic').value.trim() || '',
+                description: document.getElementById('prodDesc').value.trim(),
+                createdAt: new Date().toISOString()
+            };
 
             try {
-                await addDoc(collection(db, "tcollections_products"), {
-                    name: document.getElementById('prodName').value.trim(),
-                    category: document.getElementById('prodCategory').value,
-                    price: Number(document.getElementById('prodPrice').value),
-                    frontPic: frontBase64,
-                    hoverPic: hoverBase64,
-                    createdAt: new Date().toISOString()
-                });
-
-                statusMsg.textContent = "Product successfully uploaded!";
-                statusMsg.className = "status success";
-                form.reset();
-                document.getElementById('frontName').textContent = "";
-                document.getElementById('hoverName').textContent = "";
-                frontBase64 = "";
-                hoverBase64 = "";
-            } catch(err) {
-                console.error(err);
-                statusMsg.textContent = "Upload failed: " + err.message;
-                statusMsg.className = "status error";
+                await addDoc(collection(db, "tcollections_products"), newProduct);
+                statusMsg.textContent = 'Product successfully uploaded to TCOLLECTIONS catalog!';
+                statusMsg.className = 'status-msg success';
+                productForm.reset();
+            } catch (err) {
+                statusMsg.textContent = 'Failed to upload product. Check your network connection.';
+                statusMsg.className = 'status-msg error';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Upload Product";
+                submitBtn.textContent = 'Upload Product to Database';
             }
         });
     </script>
