@@ -36,7 +36,7 @@
         textarea { resize: vertical; min-height: 70px; }
 
         /* Choose Picture Box Styling */
-        .camera-upload-box { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; background: #121212; cursor: pointer; transition: border-color 0.2s; margin-bottom: 6px; }
+        .camera-upload-box { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; background: #121212; cursor: pointer; transition: border-color 0.2s; }
         .camera-upload-box:hover { border-color: var(--accent); }
         .camera-upload-box input[type="file"] { display: none; }
         .camera-label { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
@@ -79,7 +79,7 @@
         </div>
 
         <h1>Add New Product</h1>
-        <p class="subtitle">Choose pictures or upload items to TCollections</p>
+        <p class="subtitle">Choose pictures to upload to TCollections</p>
 
         <form id="productForm">
             <div class="form-group">
@@ -107,28 +107,26 @@
 
             <!-- Front View Choose Picture Input -->
             <div class="form-group">
-                <label>Front View Image (Choose File or URL)</label>
+                <label>Front View Image</label>
                 <div class="camera-upload-box" onclick="document.getElementById('frontFile').click()">
                     <div class="camera-label">
                         <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
                         <span id="frontFileName">Tap to choose picture from device</span>
                     </div>
                 </div>
-                <input type="file" id="frontFile" accept="image/*" onchange="document.getElementById('frontFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
-                <input type="url" id="frontUrl" placeholder="Or paste image URL here" style="margin-top: 6px;">
+                <input type="file" id="frontFile" accept="image/*" required onchange="document.getElementById('frontFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
             </div>
 
             <!-- Hover / Back View Choose Picture Input -->
             <div class="form-group">
-                <label>Hover / Back View Image (Choose File or URL)</label>
+                <label>Hover / Back View Image</label>
                 <div class="camera-upload-box" onclick="document.getElementById('hoverFile').click()">
                     <div class="camera-label">
                         <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
                         <span id="hoverFileName">Tap to choose picture from device</span>
                     </div>
                 </div>
-                <input type="file" id="hoverFile" accept="image/*" onchange="document.getElementById('hoverFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
-                <input type="url" id="hoverUrl" placeholder="Or paste image URL here" style="margin-top: 6px;">
+                <input type="file" id="hoverFile" accept="image/*" required onchange="document.getElementById('hoverFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
             </div>
 
             <div class="form-group">
@@ -187,16 +185,14 @@
 
             try {
                 const frontFileInput = document.getElementById('frontFile').files[0];
-                const frontUrlInput = document.getElementById('frontUrl').value.trim();
                 const hoverFileInput = document.getElementById('hoverFile').files[0];
-                const hoverUrlInput = document.getElementById('hoverUrl').value.trim();
 
-                let frontPicFinal = frontFileInput ? await readFileAsDataURL(frontFileInput) : frontUrlInput;
-                let hoverPicFinal = hoverFileInput ? await readFileAsDataURL(hoverFileInput) : hoverUrlInput;
-
-                if (!frontPicFinal || !hoverPicFinal) {
-                    throw new Error('Please provide both front and hover images (via file selection or URL).');
+                if (!frontFileInput || !hoverFileInput) {
+                    throw new Error('Please select both front and hover images.');
                 }
+
+                let frontPicFinal = await readFileAsDataURL(frontFileInput);
+                let hoverPicFinal = await readFileAsDataURL(hoverFileInput);
 
                 const selectedCategory = document.getElementById('prodCategory').value;
 
