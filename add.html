@@ -38,7 +38,6 @@
         /* Camera Box Styling */
         .camera-upload-box { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; background: #121212; cursor: pointer; transition: border-color 0.2s; }
         .camera-upload-box:hover { border-color: var(--accent); }
-        .camera-upload-box input[type="file"] { display: none; }
         .camera-label { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
         .camera-icon { width: 28px; height: 28px; fill: currentColor; }
 
@@ -105,28 +104,26 @@
                 <input type="number" id="prodPrice" step="0.01" required placeholder="0.00">
             </div>
 
-            <!-- Front View Camera Button -->
+            <!-- Front View Camera Box -->
             <div class="form-group">
                 <label>Front View Image</label>
-                <div class="camera-upload-box" onclick="document.getElementById('frontFile').click()">
+                <div class="camera-upload-box" id="frontBox">
                     <div class="camera-label">
                         <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
                         <span id="frontFileName">Tap to choose picture from device</span>
                     </div>
                 </div>
-                <input type="file" id="frontFile" accept="image/*" required onchange="document.getElementById('frontFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
             </div>
 
-            <!-- Hover / Back View Camera Button -->
+            <!-- Hover / Back View Camera Box -->
             <div class="form-group">
                 <label>Hover / Back View Image</label>
-                <div class="camera-upload-box" onclick="document.getElementById('hoverFile').click()">
+                <div class="camera-upload-box" id="hoverBox">
                     <div class="camera-label">
                         <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
                         <span id="hoverFileName">Tap to choose picture from device</span>
                     </div>
                 </div>
-                <input type="file" id="hoverFile" accept="image/*" required onchange="document.getElementById('hoverFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
             </div>
 
             <div class="form-group">
@@ -154,6 +151,33 @@
         const productForm = document.getElementById('productForm');
         const submitBtn = document.getElementById('submitBtn');
         const statusMsg = document.getElementById('statusMsg');
+
+        // Dynamic hidden file input elements creation
+        let frontFile = null;
+        let hoverFile = null;
+
+        function createHiddenFileInput(onFileSelected, nameSpanId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            input.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    onFileSelected(file);
+                    document.getElementById(nameSpanId).textContent = file.name;
+                    document.getElementById(nameSpanId).style.color = 'var(--success)';
+                }
+            });
+            document.body.appendChild(input);
+            return input;
+        }
+
+        const frontFileInput = createHiddenFileInput((file) => { frontFile = file; }, 'frontFileName');
+        const hoverFileInput = createHiddenFileInput((file) => { hoverFile = file; }, 'hoverFileName');
+
+        document.getElementById('frontBox').addEventListener('click', () => frontFileInput.click());
+        document.getElementById('hoverBox').addEventListener('click', () => hoverFileInput.click());
 
         function handleLogin() {
             if(passwordInput.value === '1234') {
@@ -184,15 +208,12 @@
             statusMsg.style.display = 'none';
 
             try {
-                const frontFileInput = document.getElementById('frontFile').files[0];
-                const hoverFileInput = document.getElementById('hoverFile').files[0];
-
-                if (!frontFileInput || !hoverFileInput) {
+                if (!frontFile || !hoverFile) {
                     throw new Error('Please select both front and hover images.');
                 }
 
-                let frontPicFinal = await readFileAsDataURL(frontFileInput);
-                let hoverPicFinal = await readFileAsDataURL(hoverFileInput);
+                let frontPicFinal = await readFileAsDataURL(frontFile);
+                let hoverPicFinal = await readFileAsDataURL(hoverFile);
 
                 const selectedCategory = document.getElementById('prodCategory').value;
 
