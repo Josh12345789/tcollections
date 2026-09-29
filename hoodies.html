@@ -23,14 +23,10 @@
         
         h1 { font-size: 1.8rem; font-weight: 600; }
 
-        /* Product Grid Container */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        
-        /* Product Card */
         .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .card:hover { transform: translateY(-4px); }
 
-        /* Image Swap Container */
         .img-container { width: 100%; height: 320px; position: relative; background: #121212; overflow: hidden; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; transition: opacity 0.3s ease-in-out; }
         .img-container img.hover-img { opacity: 0; }
@@ -50,7 +46,6 @@
     <div class="header">
         <a href="index.html" class="nav-link">← Home</a>
         <h1>Hoodies</h1>
-        <a href="add.html" class="nav-link">+ Add Product</a>
     </div>
 
     <div class="grid" id="productGrid">
@@ -66,7 +61,6 @@
         async function loadHoodies() {
             const grid = document.getElementById('productGrid');
             try {
-                // Query collection matching your exact category string ("Hoodies")
                 const q = query(collection(db, "tcollections_products"), where("category", "==", "Hoodies"));
                 const querySnapshot = await getDocs(q);
 
@@ -79,7 +73,6 @@
 
                 querySnapshot.forEach((doc) => {
                     const product = doc.data();
-                    
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
@@ -97,8 +90,7 @@
                 });
 
             } catch (err) {
-                console.error("Error loading hoodies:", err);
-                grid.innerHTML = '<div class="no-products">Failed to load products. Check console connection.</div>';
+                grid.innerHTML = '<div class="no-products">Failed to load products.</div>';
             }
         }
 
