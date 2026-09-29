@@ -35,7 +35,7 @@
         input:focus, select:focus, textarea:focus { border-color: var(--accent); }
         textarea { resize: vertical; min-height: 70px; }
 
-        /* Choose Picture Box Styling */
+        /* Camera Box Styling */
         .camera-upload-box { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; background: #121212; cursor: pointer; transition: border-color 0.2s; }
         .camera-upload-box:hover { border-color: var(--accent); }
         .camera-upload-box input[type="file"] { display: none; }
@@ -79,7 +79,7 @@
         </div>
 
         <h1>Add New Product</h1>
-        <p class="subtitle">Choose pictures to upload to TCollections</p>
+        <p class="subtitle">Upload items to TCollections</p>
 
         <form id="productForm">
             <div class="form-group">
@@ -105,7 +105,7 @@
                 <input type="number" id="prodPrice" step="0.01" required placeholder="0.00">
             </div>
 
-            <!-- Front View Choose Picture Input -->
+            <!-- Front View Camera Button -->
             <div class="form-group">
                 <label>Front View Image</label>
                 <div class="camera-upload-box" onclick="document.getElementById('frontFile').click()">
@@ -117,7 +117,7 @@
                 <input type="file" id="frontFile" accept="image/*" required onchange="document.getElementById('frontFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to choose picture from device'">
             </div>
 
-            <!-- Hover / Back View Choose Picture Input -->
+            <!-- Hover / Back View Camera Button -->
             <div class="form-group">
                 <label>Hover / Back View Image</label>
                 <div class="camera-upload-box" onclick="document.getElementById('hoverFile').click()">
