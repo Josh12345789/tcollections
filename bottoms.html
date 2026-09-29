@@ -3,110 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCollections - BOTTOMS</title>
+    <title>TCollections - Bottoms</title>
     <style>
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #181818;
-            --border-color: #2a2a2a;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent: #ffffff;
-        }
-
+        :root { --bg-color: #0f0f0f; --card-bg: #181818; --border-color: #2a2a2a; --text-main: #f3f4f6; --text-muted: #9ca3af; --accent: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 20px; }
-
-        header { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 30px auto; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        header h1 { font-size: 1.4rem; letter-spacing: 0.5px; }
-        header a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-        header a:hover { color: var(--accent); }
-
-        .container { max-width: 1200px; margin: 0 auto; }
-        .section-title { font-size: 1.8rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-        
-        .product-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; transition: transform 0.2s; }
-        .product-card:hover { transform: translateY(-4px); }
-        
-        .img-container { width: 100%; aspect-ratio: 1/1; position: relative; background: #121212; overflow: hidden; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .img-container img.hover-img { position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 0.3s ease; }
+        .header { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 30px auto; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .nav-link { background: #222; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; transition: background 0.2s; }
+        .nav-link:hover { background: #333; }
+        h1 { font-size: 1.8rem; font-weight: 600; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-4px); }
+        .img-container { width: 100%; height: 320px; position: relative; background: #121212; overflow: hidden; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; transition: opacity 0.3s ease-in-out; }
+        .img-container img.hover-img { opacity: 0; }
+        .img-container:hover img.front-img { opacity: 0; }
         .img-container:hover img.hover-img { opacity: 1; }
-
-        .info { padding: 16px; }
-        .info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .info p.price { font-weight: 600; color: var(--text-main); font-size: 1.05rem; }
-        .info p.desc { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-        .loading, .empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px 0; font-size: 1rem; }
+        .card-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .prod-name { font-size: 1rem; font-weight: 600; color: var(--text-main); }
+        .prod-price { font-size: 0.95rem; font-weight: 700; color: var(--accent); }
+        .prod-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; flex-grow: 1; }
+        .no-products { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px; font-size: 1rem; }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>TCOLLECTIONS</h1>
-        <a href="index.html">← Back to Home</a>
-    </header>
-
-    <div class="container">
-        <h2 class="section-title" id="pageHeading">Category Items</h2>
-        <div id="productGrid" class="grid">
-            <div class="loading">Loading products...</div>
-        </div>
+    <div class="header">
+        <a href="index.html" class="nav-link">← Home</a>
+        <h1>Bottoms</h1>
+        <a href="add.html" class="nav-link">+ Add Product</a>
     </div>
-
+    <div class="grid" id="productGrid">
+        <div class="no-products">Loading bottoms...</div>
+    </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.appspot.com", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
-
-        // CONFIGURATION PER FILE: Change this target category name to match your file name!
-        // Options: "Hoodies", "T-Shirts", "Tracksuits", "Bottoms", "Shorts", "Shoes"
-        const TARGET_CATEGORY = "BOTTOMS"; 
-
-        document.getElementById('pageHeading').textContent = TARGET_CATEGORY;
-        document.title = `TCollections - ${TARGET_CATEGORY}`;
-
-        async function loadCategoryProducts() {
-            const container = document.getElementById('productGrid');
+        async function loadProducts() {
+            const grid = document.getElementById('productGrid');
             try {
-                const querySnapshot = await getDocs(collection(db, "tcollections_products"));
-                container.innerHTML = '';
-                
-                let matches = 0;
-                querySnapshot.forEach((docSnap) => {
-                    const p = docSnap.data();
-                    if (p.category === TARGET_CATEGORY) {
-                        matches++;
-                        container.innerHTML += `
-                            <div class="product-card">
-                                <div class="img-container">
-                                    <img src="${p.frontPic}" alt="${p.name}">
-                                    <img src="${p.hoverPic}" alt="${p.name} - Hover" class="hover-img">
-                                </div>
-                                <div class="info">
-                                    <h3>${p.name}</h3>
-                                    <p class="price">ZMW ${Number(p.price).toFixed(2)}</p>
-                                    ${p.description ? `<p class="desc">${p.description}</p>` : ''}
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-
-                if (matches === 0) {
-                    container.innerHTML = `<div class="empty">No products found in ${TARGET_CATEGORY} yet. Check back soon or add items via add.html!</div>`;
+                const q = query(collection(db, "tcollections_products"), where("category", "==", "Bottoms"));
+                const querySnapshot = await getDocs(q);
+                grid.innerHTML = '';
+                if (querySnapshot.empty) {
+                    grid.innerHTML = '<div class="no-products">No bottoms found in inventory yet.</div>';
+                    return;
                 }
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="img-container">
+                            <img src="${product.frontPic}" alt="${product.name}" class="front-img">
+                            <img src="${product.hoverPic || product.frontPic}" alt="${product.name} hover" class="hover-img">
+                        </div>
+                        <div class="card-body">
+                            <div class="prod-name">${escapeHtml(product.name)}</div>
+                            <div class="prod-price">ZMW ${parseFloat(product.price).toFixed(2)}</div>
+                            <div class="prod-desc">${escapeHtml(product.description || '')}</div>
+                        </div>`;
+                    grid.appendChild(card);
+                });
             } catch (err) {
-                console.error(err);
-                container.innerHTML = `<div class="empty">Failed to load products from database.</div>`;
+                grid.innerHTML = '<div class="no-products">Failed to load products.</div>';
             }
         }
-
-        loadCategoryProducts();
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+        loadProducts();
     </script>
 </body>
 </html>
