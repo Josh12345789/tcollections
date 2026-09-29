@@ -20,16 +20,27 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
-        .container { width: 100%; max-width: 500px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .container { width: 100%; max-width: 500px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
         
-        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; text-align: center; }
-        p.subtitle { color: var(--text-muted); font-size: 0.875rem; text-align: center; margin-bottom: 24px; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .nav-link { background: #222; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; transition: background 0.2s; }
+        .nav-link:hover { background: #333; }
+
+        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; text-align: center; }
+        p.subtitle { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 20px; }
 
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; color: var(--text-muted); }
         input, select, textarea { width: 100%; background: #121212; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; color: var(--text-main); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-        textarea { resize: vertical; min-height: 80px; }
+        textarea { resize: vertical; min-height: 70px; }
+
+        /* Camera / Image Upload Box Styling */
+        .camera-upload-box { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; background: #121212; cursor: pointer; transition: border-color 0.2s; margin-bottom: 6px; }
+        .camera-upload-box:hover { border-color: var(--accent); }
+        .camera-upload-box input[type="file"] { display: none; }
+        .camera-label { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+        .camera-icon { width: 28px; height: 28px; fill: currentColor; }
 
         .btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, opacity 0.2s; margin-top: 10px; }
         .btn:hover { background: var(--accent-hover); }
@@ -62,8 +73,13 @@
 
     <!-- Main Add Product Interface -->
     <div class="container" id="adminMain" style="display: none;">
+        <div class="top-nav">
+            <a href="index.html" class="nav-link">← Home</a>
+            <a href="delete.html" class="nav-link" style="border-color: #552222; color: #ff8888;">Manage / Delete Items →</a>
+        </div>
+
         <h1>Add New Product</h1>
-        <p class="subtitle">Upload items directly to TCollections inventory</p>
+        <p class="subtitle">Capture or upload items to TCollections</p>
 
         <form id="productForm">
             <div class="form-group">
@@ -89,16 +105,30 @@
                 <input type="number" id="prodPrice" step="0.01" required placeholder="0.00">
             </div>
 
+            <!-- Front View Camera / File Input -->
             <div class="form-group">
-                <label for="frontFile">Front View Image (File or URL)</label>
-                <input type="file" id="frontFile" accept="image/*" style="margin-bottom: 6px;">
-                <input type="url" id="frontUrl" placeholder="Or paste image URL">
+                <label>Front View Image (Camera / File or URL)</label>
+                <div class="camera-upload-box" onclick="document.getElementById('frontFile').click()">
+                    <div class="camera-label">
+                        <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
+                        <span id="frontFileName">Tap to take photo or choose file</span>
+                    </div>
+                </div>
+                <input type="file" id="frontFile" accept="image/*" capture="environment" onchange="document.getElementById('frontFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to take photo or choose file'">
+                <input type="url" id="frontUrl" placeholder="Or paste image URL here" style="margin-top: 6px;">
             </div>
 
+            <!-- Hover / Back View Camera / File Input -->
             <div class="form-group">
-                <label for="hoverFile">Hover/Back View Image (File or URL)</label>
-                <input type="file" id="hoverFile" accept="image/*" style="margin-bottom: 6px;">
-                <input type="url" id="hoverUrl" placeholder="Or paste image URL">
+                <label>Hover / Back View Image (Camera / File or URL)</label>
+                <div class="camera-upload-box" onclick="document.getElementById('hoverFile').click()">
+                    <div class="camera-label">
+                        <svg class="camera-icon" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5a5 5 0 0 0 5 5a5 5 0 0 0 5-5a5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3a3 3 0 0 1-3 3a3 3 0 0 1-3-3a3 3 0 0 1 3-3Z"/></svg>
+                        <span id="hoverFileName">Tap to take photo or choose file</span>
+                    </div>
+                </div>
+                <input type="file" id="hoverFile" accept="image/*" capture="environment" onchange="document.getElementById('hoverFileName').textContent = this.files[0] ? this.files[0].name : 'Tap to take photo or choose file'">
+                <input type="url" id="hoverUrl" placeholder="Or paste image URL here" style="margin-top: 6px;">
             </div>
 
             <div class="form-group">
@@ -128,7 +158,7 @@
         const statusMsg = document.getElementById('statusMsg');
 
         function handleLogin() {
-            if(passwordInput.value === '1234') {
+            if(passwordInput.value === 'tcollections') {
                 authWrapper.style.display = 'none';
                 adminMain.style.display = 'block';
             } else {
@@ -165,7 +195,7 @@
                 let hoverPicFinal = hoverFileInput ? await readFileAsDataURL(hoverFileInput) : hoverUrlInput;
 
                 if (!frontPicFinal || !hoverPicFinal) {
-                    throw new Error('Please provide both front and hover images (file or URL).');
+                    throw new Error('Please provide both front and hover images (via camera, file, or URL).');
                 }
 
                 const selectedCategory = document.getElementById('prodCategory').value;
@@ -186,7 +216,6 @@
                 statusMsg.className = 'status-msg success';
                 productForm.reset();
 
-                // Automatically redirects to the exact category file!
                 setTimeout(() => {
                     const pageMap = {
                         "Shoes": "shoes.html",
