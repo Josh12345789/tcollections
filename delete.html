@@ -6,44 +6,81 @@
     <title>Delete Products - TCOLLECTIONS Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; }
-        header { border-bottom: 1px solid #e5e5e5; background: #fff; position: sticky; top: 0; z-index: 100; }
-        .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
-        .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
-        .back-link { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 6px 14px; border-radius: 4px; transition: background 0.2s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        header { border-bottom: 1px solid #e5e5e5; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1440px; margin: 0 auto; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        @media(min-width: 768px) { .nav-container { padding: 0 40px; } }
+
+        .logo { font-size: 1.1rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; white-space: nowrap; }
+        @media(min-width: 768px) { .logo { font-size: 1.4rem; } }
+
+        .back-link { font-size: 0.8rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 7px 12px; border-radius: 4px; transition: background 0.2s; white-space: nowrap; }
+        @media(min-width: 768px) { .back-link { font-size: 0.85rem; padding: 6px 14px; } }
         .back-link:hover { background: #f0f0f0; }
 
         /* Auth Screen */
-        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
-        .auth-box { background: #fff; padding: 40px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .auth-box h2 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: #fff; padding: 30px 20px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        @media(min-width: 768px) { .auth-box { padding: 40px; gap: 20px; } }
+        
+        .auth-box h2 { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        @media(min-width: 768px) { .auth-box h2 { font-size: 1.5rem; } }
+        
         .auth-box p { font-size: 0.85rem; color: #666; line-height: 1.4; }
-        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
-        .auth-input:focus { border-color: #000; }
+        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #fafafa; }
+        .auth-input:focus { border-color: #000; background: #fff; }
+        
         .auth-btn { background: #000; color: #fff; border: none; padding: 12px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
         .auth-btn:hover { background: #333; }
-        .auth-error { font-size: 0.8rem; color: #d93838; display: none; }
+        .auth-error { font-size: 0.8rem; color: #d93838; display: none; font-weight: 600; }
 
         /* Admin Dashboard */
-        .admin-main { max-width: 1440px; margin: 0 auto; padding: 40px; width: 100%; display: none; flex: 1; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-        .admin-header h1 { font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
-        .search-box { padding: 10px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 0.9rem; outline: none; width: 300px; }
+        .admin-main { max-width: 1440px; margin: 0 auto; padding: 20px 15px; width: 100%; display: none; flex: 1; }
+        @media(min-width: 768px) { .admin-main { padding: 30px; } }
+        @media(min-width: 1024px) { .admin-main { padding: 40px; } }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; flex-direction: column; gap: 15px; }
+        @media(min-width: 768px) { .admin-header { flex-direction: row; align-items: center; margin-bottom: 30px; } }
+
+        .admin-header h1 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        @media(min-width: 768px) { .admin-header h1 { font-size: 2rem; } }
+
+        .search-box { padding: 10px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 0.9rem; outline: none; width: 100%; transition: border-color 0.2s; }
+        @media(min-width: 768px) { .search-box { width: 300px; } }
         .search-box:focus { border-color: #000; }
 
-        .category-section { margin-bottom: 40px; }
-        .category-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #000; display: inline-block; }
+        .category-section { margin-bottom: 30px; }
+        @media(min-width: 768px) { .category-section { margin-bottom: 40px; } }
+
+        .category-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; padding-bottom: 6px; border-bottom: 2px solid #000; display: inline-block; }
+        @media(min-width: 768px) { .category-title { font-size: 1.1rem; margin-bottom: 20px; padding-bottom: 8px; } }
         
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        /* Mobile 2-column grid scaling smoothly to desktop grid */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        @media(min-width: 540px) { .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
+        @media(min-width: 1024px) { .product-grid { gap: 25px; } }
+
         .product-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s; }
-        .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        @media(hover: hover) {
+            .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        }
+
         .card-img-container { position: relative; width: 100%; padding-top: 100%; background: #f4f4f4; }
         .card-img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .card-info { padding: 15px; display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: space-between; }
-        .prod-name { font-size: 0.95rem; font-weight: 600; color: #111; }
-        .prod-price { font-size: 0.9rem; font-weight: 700; color: #000; }
-        .delete-btn { background: #fff; color: #d93838; border: 1px solid #d93838; padding: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        
+        .card-info { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: space-between; }
+        @media(min-width: 768px) { .card-info { padding: 15px; } }
+
+        .prod-name { font-size: 0.85rem; font-weight: 600; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media(min-width: 768px) { .prod-name { font-size: 0.95rem; white-space: normal; } }
+
+        .prod-price { font-size: 0.85rem; font-weight: 700; color: #000; }
+        @media(min-width: 768px) { .prod-price { font-size: 0.9rem; } }
+
+        .delete-btn { background: #fff; color: #d93838; border: 1px solid #d93838; padding: 9px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        @media(min-width: 768px) { .delete-btn { padding: 10px; font-size: 0.75rem; } }
         .delete-btn:hover { background: #d93838; color: #fff; }
         
         .empty-notice { text-align: center; padding: 40px; color: #757575; grid-column: 1 / -1; font-size: 0.9rem; }
@@ -63,7 +100,7 @@
         <div class="auth-box">
             <h2>Admin Security</h2>
             <p>Enter the admin access password to manage and delete products from the database.</p>
-            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password...">
+            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password..." autocomplete="current-password">
             <span id="authError" class="auth-error">Incorrect password. Please try again.</span>
             <button id="loginBtn" class="auth-btn">Access Dashboard</button>
         </div>
