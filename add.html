@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCollections - Add Product</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #181818;
+            --border-color: #2a2a2a;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #ffffff;
+            --accent-hover: #e5e7eb;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+
+        .container { width: 100%; max-width: 500px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; text-align: center; }
+        p.subtitle { color: var(--text-muted); font-size: 0.875rem; text-align: center; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; color: var(--text-muted); }
+        input, select, textarea { width: 100%; background: #121212; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; color: var(--text-main); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+        textarea { resize: vertical; min-height: 80px; }
+
+        .btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, opacity 0.2s; margin-top: 10px; }
+        .btn:hover { background: var(--accent-hover); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .status-msg { margin-top: 15px; font-size: 0.875rem; text-align: center; padding: 8px; border-radius: 6px; display: none; }
+        .status-msg.success { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.2); display: block; }
+        .status-msg.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); display: block; }
+
+        /* Auth Gate Overlay */
+        #authWrapper { position: fixed; inset: 0; background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+        .auth-box { width: 100%; max-width: 380px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; text-align: center; }
+        .auth-error { color: var(--danger); font-size: 0.8rem; margin-top: 8px; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Authentication Screen -->
+    <div id="authWrapper">
+        <div class="auth-box">
+            <h1>Admin Access</h1>
+            <p class="subtitle">Enter password to manage inventory</p>
+            <div class="form-group" style="text-align: left;">
+                <input type="password" id="adminPassword" placeholder="Enter admin password">
+            </div>
+            <button class="btn" id="loginBtn">Authorize</button>
+            <div id="authError" class="auth-error">Incorrect password. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- Main Add Product Interface -->
+    <div class="container" id="adminMain" style="display: none;">
+        <h1>Add New Product</h1>
+        <p class="subtitle">Upload items directly to TCollections inventory</p>
+
+        <form id="productForm">
+            <div class="form-group">
+                <label for="prodName">Product Name</label>
+                <input type="text" id="prodName" required placeholder="e.g. Vintage BAPE Hoodie">
+            </div>
+
+            <div class="form-group">
+                <label for="prodCategory">Category</label>
+                <select id="prodCategory" required>
+                    <option value="" disabled selected>Select category</option>
+                    <option value="Hoodies">Hoodies</option>
+                    <option value="T-Shirts">T-Shirts</option>
+                    <option value="Tracksuits">Tracksuits</option>
+                    <option value="Bottoms">Bottoms</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Shoes">Shoes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prodPrice">Price (ZMW)</label>
+                <input type="number" id="prodPrice" step="0.01" required placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="frontFile">Front View Image (File or URL)</label>
+                <input type="file" id="frontFile" accept="image/*" style="margin-bottom: 6px;">
+                <input type="url" id="frontUrl" placeholder="Or paste image URL">
+            </div>
+
+            <div class="form-group">
+                <label for="hoverFile">Hover/Back View Image (File or URL)</label>
+                <input type="file" id="hoverFile" accept="image/*" style="margin-bottom: 6px;">
+                <input type="url" id="hoverUrl" placeholder="Or paste image URL">
+            </div>
+
+            <div class="form-group">
+                <label for="prodDesc">Description</label>
+                <textarea id="prodDesc" placeholder="Enter product details, sizing specs..."></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">Upload Product</button>
+            <div id="statusMsg" class="status-msg"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const db = getFirestore(initializeApp({ apiKey: "AIzaSyBnbwhqab084EE05kf5ApIbvJ-q8odHb4g", authDomain: "joshuahere-e6be0.firebaseapp.com", projectId: "joshuahere-e6be0", storageBucket: "joshuahere-e6be0.appspot.com", messagingSenderId: "293721153527", appId: "1:293721153527:web:baf3ba82a3314cdf2bd8f2" }));
+        
+        const authWrapper = document.getElementById('authWrapper');
+        const adminMain = document.getElementById('adminMain');
+        const passwordInput = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const authError = document.getElementById('authError');
+        
+        const productForm = document.getElementById('productForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMsg = document.getElementById('statusMsg');
+
+        function handleLogin() {
+            if(passwordInput.value === 'tcollections') {
+                authWrapper.style.display = 'none';
+                adminMain.style.display = 'block';
+            } else {
+                authError.style.display = 'block';
+                passwordInput.style.borderColor = '#ef4444';
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            statusMsg.style.display = 'none';
+
+            try {
+                const frontFileInput = document.getElementById('frontFile').files[0];
+                const frontUrlInput = document.getElementById('frontUrl').value.trim();
+                const hoverFileInput = document.getElementById('hoverFile').files[0];
+                const hoverUrlInput = document.getElementById('hoverUrl').value.trim();
+
+                let frontPicFinal = frontFileInput ? await readFileAsDataURL(frontFileInput) : frontUrlInput;
+                let hoverPicFinal = hoverFileInput ? await readFileAsDataURL(hoverFileInput) : hoverUrlInput;
+
+                if (!frontPicFinal || !hoverPicFinal) {
+                    throw new Error('Please provide both front and hover images (file or URL).');
+                }
+
+                const selectedCategory = document.getElementById('prodCategory').value;
+
+                const newProduct = {
+                    name: document.getElementById('prodName').value.trim(),
+                    category: selectedCategory,
+                    price: parseFloat(document.getElementById('prodPrice').value),
+                    frontPic: frontPicFinal,
+                    hoverPic: hoverPicFinal,
+                    description: document.getElementById('prodDesc').value.trim(),
+                    createdAt: new Date().toISOString()
+                };
+
+                await addDoc(collection(db, "tcollections_products"), newProduct);
+                
+                statusMsg.textContent = 'Product added successfully! Redirecting...';
+                statusMsg.className = 'status-msg success';
+                productForm.reset();
+
+                // Automatically redirects to the exact category file!
+                setTimeout(() => {
+                    const pageMap = {
+                        "Shoes": "shoes.html",
+                        "Hoodies": "hoodies.html",
+                        "T-Shirts": "tshirts.html",
+                        "Shorts": "shorts.html",
+                        "Bottoms": "bottoms.html",
+                        "Tracksuits": "tracksuits.html"
+                    };
+                    window.location.href = pageMap[selectedCategory] || "index.html";
+                }, 1200);
+
+            } catch (err) {
+                statusMsg.textContent = err.message || 'Error saving product.';
+                statusMsg.className = 'status-msg error';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Product';
+            }
+        });
+    </script>
+</body>
+</html>
