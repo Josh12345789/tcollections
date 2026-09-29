@@ -6,40 +6,60 @@
     <title>Add Product - TCOLLECTIONS Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; }
-        header { border-bottom: 1px solid #e5e5e5; background: #fff; position: sticky; top: 0; z-index: 100; }
-        .nav-container { max-width: 1440px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
-        .logo { font-size: 1.4rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; }
-        .back-link { font-size: 0.85rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 8px 16px; border-radius: 4px; transition: background 0.2s; background: #fff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #fafafa; color: #111; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        header { border-bottom: 1px solid #e5e5e5; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1440px; margin: 0 auto; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        @media(min-width: 768px) { .nav-container { padding: 0 40px; } }
+
+        .logo { font-size: 1.1rem; font-weight: 900; color: #000; text-decoration: none; letter-spacing: -1px; white-space: nowrap; }
+        @media(min-width: 768px) { .logo { font-size: 1.4rem; } }
+
+        .back-link { font-size: 0.8rem; color: #111; text-decoration: none; font-weight: 600; border: 1px solid #ddd; padding: 7px 12px; border-radius: 4px; transition: background 0.2s; white-space: nowrap; background: #fff; }
+        @media(min-width: 768px) { .back-link { font-size: 0.85rem; padding: 6px 14px; } }
         .back-link:hover { background: #f0f0f0; }
 
         /* Auth Screen */
-        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
-        .auth-box { background: #fff; padding: 40px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .auth-box h2 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: #fff; padding: 30px 20px; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        @media(min-width: 768px) { .auth-box { padding: 40px; gap: 20px; } }
+        
+        .auth-box h2 { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
+        @media(min-width: 768px) { .auth-box h2 { font-size: 1.5rem; } }
+        
         .auth-box p { font-size: 0.85rem; color: #666; line-height: 1.4; }
-        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
-        .auth-input:focus { border-color: #000; }
+        .auth-input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #fafafa; }
+        .auth-input:focus { border-color: #000; background: #fff; }
+        
         .auth-btn { background: #000; color: #fff; border: none; padding: 12px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
         .auth-btn:hover { background: #333; }
-        .auth-error { font-size: 0.8rem; color: #d93838; display: none; }
+        .auth-error { font-size: 0.8rem; color: #d93838; display: none; font-weight: 600; }
 
         /* Admin Form Main */
-        .admin-main { max-width: 800px; margin: 40px auto; padding: 0 20px; width: 100%; display: none; flex: 1; }
-        .form-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .form-title { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 30px; }
+        .admin-main { max-width: 800px; margin: 30px auto; padding: 0 15px; width: 100%; display: none; flex: 1; }
+        @media(min-width: 768px) { .admin-main { margin: 40px auto; padding: 0 20px; } }
+
+        .form-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 25px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        @media(min-width: 768px) { .form-card { padding: 40px; } }
+
+        .form-title { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 25px; }
+        @media(min-width: 768px) { .form-title { font-size: 1.8rem; margin-bottom: 30px; } }
         
-        .form-group { margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+        @media(min-width: 768px) { .form-group { margin-bottom: 24px; } }
+
+        .form-group label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        @media(min-width: 768px) { .form-group label { font-size: 0.85rem; } }
+
         .form-control { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #fff; width: 100%; }
         .form-control:focus { border-color: #000; }
         
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 600px) { .form-row { grid-template-columns: 1fr 1fr; gap: 20px; } }
 
-        .btn-container { display: flex; gap: 12px; margin-top: 10px; }
-        @media(max-width: 600px) { .btn-container { flex-direction: column; } }
+        .btn-container { display: flex; gap: 12px; margin-top: 10px; flex-direction: column; }
+        @media(min-width: 600px) { .btn-container { flex-direction: row; } }
 
         .submit-btn { background: #000; color: #fff; border: none; padding: 14px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; flex: 1; transition: background 0.2s; }
         .submit-btn:hover { background: #333; }
@@ -67,7 +87,7 @@
         <div class="auth-box">
             <h2>Admin Security</h2>
             <p>Enter the admin access password to unlock the product upload panel.</p>
-            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password...">
+            <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password..." autocomplete="current-password">
             <span id="authError" class="auth-error">Incorrect password. Please try again.</span>
             <button id="loginBtn" class="auth-btn">Access Dashboard</button>
         </div>
@@ -88,12 +108,12 @@
                         <label for="prodCategory">Category</label>
                         <select id="prodCategory" class="form-control" required>
                             <option value="">Select Category...</option>
+                            <option value="Shoes">Shoes</option>
                             <option value="Hoodies">Hoodies</option>
-                            <option value="Tee">Tees</option>
-                            <option value="Pants">Pants</option>
-                            <option value="Outerwear">Outerwear</option>
-                            <option value="Accessories">Accessories</option>
-                            <option value="Footwear">Footwear</option>
+                            <option value="T-Shirts">T-Shirts</option>
+                            <option value="Shorts">Shorts</option>
+                            <option value="Bottoms">Bottoms</option>
+                            <option value="Tracksuits">Tracksuits</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -108,8 +128,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="backPic">Back Image URL (Optional)</label>
-                    <input type="url" id="backPic" class="form-control" placeholder="https://example.com/image-back.jpg">
+                    <label for="hoverPic">Hover Image URL (Back / Alternate View)</label>
+                    <input type="url" id="hoverPic" class="form-control" placeholder="https://example.com/image-hover.jpg" required>
                 </div>
 
                 <div class="form-group">
@@ -142,9 +162,9 @@
         const submitBtn = document.getElementById('submitBtn');
         const statusMsg = document.getElementById('statusMsg');
 
-        // Handle login verification
+        // Handle login verification (synchronized password: tcollections)
         function handleLogin() {
-            if(passwordInput.value === '1234') {
+            if(passwordInput.value === 'tcollections') {
                 authWrapper.style.display = 'none';
                 adminMain.style.display = 'block';
             } else {
@@ -169,7 +189,7 @@
                 category: document.getElementById('prodCategory').value,
                 price: parseFloat(document.getElementById('prodPrice').value),
                 frontPic: document.getElementById('frontPic').value.trim(),
-                backPic: document.getElementById('backPic').value.trim() || '',
+                hoverPic: document.getElementById('hoverPic').value.trim(),
                 description: document.getElementById('prodDesc').value.trim(),
                 createdAt: new Date().toISOString()
             };
