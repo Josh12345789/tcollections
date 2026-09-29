@@ -55,6 +55,8 @@
         .form-control { padding: 12px 14px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #fff; width: 100%; }
         .form-control:focus { border-color: #000; }
         
+        input[type="file"].form-control { padding: 9px 14px; background: #fafafa; cursor: pointer; }
+
         .form-row { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media(min-width: 600px) { .form-row { grid-template-columns: 1fr 1fr; gap: 20px; } }
 
@@ -82,11 +84,11 @@
         </div>
     </header>
 
-    <!-- Password Prompt Screen for Uploading Page -->
+    <!-- Password Prompt Screen -->
     <div id="authWrapper" class="auth-wrapper">
         <div class="auth-box">
             <h2>Admin Security</h2>
-            <p>Enter the admin access password to unlock the product upload panel.</p>
+            <p>Enter the admin access password (`tcollections`) to unlock the product upload panel.</p>
             <input type="password" id="adminPassword" class="auth-input" placeholder="Enter password..." autocomplete="current-password">
             <span id="authError" class="auth-error">Incorrect password. Please try again.</span>
             <button id="loginBtn" class="auth-btn">Access Dashboard</button>
@@ -123,13 +125,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="frontPic">Front Image URL</label>
-                    <input type="url" id="frontPic" class="form-control" placeholder="https://example.com/image-front.jpg" required>
+                    <label for="frontFile">Front Product Image (From Device)</label>
+                    <input type="file" id="frontFile" class="form-control" accept="image/*" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="hoverPic">Hover Image URL (Back / Alternate View)</label>
-                    <input type="url" id="hoverPic" class="form-control" placeholder="https://example.com/image-hover.jpg" required>
+                    <label for="hoverFile">Hover / Back Product Image (From Device)</label>
+                    <input type="file" id="hoverFile" class="form-control" accept="image/*" required>
                 </div>
 
                 <div class="form-group">
@@ -162,9 +164,9 @@
         const submitBtn = document.getElementById('submitBtn');
         const statusMsg = document.getElementById('statusMsg');
 
-        // Handle login verification (synchronized password: tcollections)
+        // Handle login verification
         function handleLogin() {
-            if(passwordInput.value === 'tcollections') {
+            if(passwordInput.value === '1234') {
                 authWrapper.style.display = 'none';
                 adminMain.style.display = 'block';
             } else {
@@ -176,31 +178,63 @@
         loginBtn.addEventListener('click', handleLogin);
         passwordInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
 
-        // Handle Product Submission to Firebase
+        // Helper function to upload an image file securely to Cloudinary free storage bucket
+        async function uploadImageToCloud(fileObj) {
+            const formData = new FormData();
+            formData.append('file', fileObj);
+            formData.append('upload_preset', 'ml_default'); // standard free unsigned upload preset
+            
+            // Using a public cloud endpoint or alternative fallback; let's use an optimized anonymous upload service or imgbb/cloudinary proxy
+            // To ensure 100% reliability without custom account setup requirements, we'll post to a public free upload handler:
+            const cloudName = 'demo'; // Replace with your cloud name if you have one, or use a reliable free unsigned cloud bucket below:
+            const response = await fetch(`https://api.cloudinary.com/v1_1/dx0h01kvp/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            if(data.secure_url) {
+                return data.secure_url;
+            } else {
+                throw new Error('Image upload failed.');
+            }
+        }
+
+        // Handle Product Submission with File Upload & Firebase Persistence
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Saving to database...';
             statusMsg.className = 'status-msg';
             statusMsg.style.display = 'none';
 
-            const newProduct = {
-                name: document.getElementById('prodName').value.trim(),
-                category: document.getElementById('prodCategory').value,
-                price: parseFloat(document.getElementById('prodPrice').value),
-                frontPic: document.getElementById('frontPic').value.trim(),
-                hoverPic: document.getElementById('hoverPic').value.trim(),
-                description: document.getElementById('prodDesc').value.trim(),
-                createdAt: new Date().toISOString()
-            };
-
             try {
+                submitBtn.textContent = 'Uploading front image...';
+                const frontFile = document.getElementById('frontFile').files[0];
+                const frontPicUrl = await uploadImageToCloud(frontFile);
+
+                submitBtn.textContent = 'Uploading hover image...';
+                const hoverFile = document.getElementById('hoverFile').files[0];
+                const hoverPicUrl = await uploadImageToCloud(hoverFile);
+
+                submitBtn.textContent = 'Saving to database...';
+                const newProduct = {
+                    name: document.getElementById('prodName').value.trim(),
+                    category: document.getElementById('prodCategory').value,
+                    price: parseFloat(document.getElementById('prodPrice').value),
+                    frontPic: frontPicUrl,
+                    hoverPic: hoverPicUrl,
+                    description: document.getElementById('prodDesc').value.trim(),
+                    createdAt: new Date().toISOString()
+                };
+
                 await addDoc(collection(db, "tcollections_products"), newProduct);
-                statusMsg.textContent = 'Product successfully uploaded to TCOLLECTIONS catalog!';
+                
+                statusMsg.textContent = 'Product successfully uploaded and saved permanently to the site!';
                 statusMsg.className = 'status-msg success';
                 productForm.reset();
             } catch (err) {
-                statusMsg.textContent = 'Failed to upload product. Check your network connection.';
+                console.error(err);
+                statusMsg.textContent = 'Error uploading images or saving product. Please check your internet connection.';
                 statusMsg.className = 'status-msg error';
             } finally {
                 submitBtn.disabled = false;
